@@ -1,0 +1,63 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { Bot, User } from "lucide-react";
+
+type Props = {
+  role: "user" | "assistant";
+  content: string;
+  toolsUsed?: string[];
+};
+
+const TOOL_LABELS: Record<string, string> = {
+  search_company_policies: "公司制度检索",
+  calculate_workdays: "工作日计算",
+};
+
+export default function ChatMessage({ role, content, toolsUsed = [] }: Props) {
+  const isUser = role === "user";
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+      className={cn(
+        "flex gap-3 items-start",
+        isUser && "flex-row-reverse"
+      )}
+    >
+      {/* 头像 */}
+      <div
+        className={cn(
+          "w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md",
+          isUser
+            ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground"
+            : "bg-gradient-to-br from-muted to-muted/60 text-foreground"
+        )}
+      >
+        {isUser ? <User size={18} /> : <Bot size={18} />}
+      </div>
+
+      {/* 消息气泡 */}
+      <motion.div
+        whileHover={{ scale: 1.01 }}
+        transition={{ duration: 0.2 }}
+        className={cn(
+          "max-w-[75%] rounded-2xl px-5 py-3.5 text-[15px] leading-relaxed shadow-lg transition-smooth",
+          isUser
+            ? "bg-gradient-to-br from-primary to-primary/90 text-primary-foreground shadow-primary/20"
+            : "bg-card text-card-foreground border border-border/50 shadow-sm"
+        )}
+      >
+        <div className="whitespace-pre-wrap break-words">{content}</div>
+        {!isUser && toolsUsed.length > 0 && (
+          <div className="mt-3 border-t border-border/50 pt-2 text-xs text-muted-foreground">
+            已调用：{toolsUsed.map((tool) => TOOL_LABELS[tool] || tool).join("、")}
+          </div>
+        )}
+      </motion.div>
+    </motion.div>
+  );
+}
